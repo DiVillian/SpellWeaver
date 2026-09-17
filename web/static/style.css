@@ -1,0 +1,530 @@
+:root {
+  --bg: #17161c;
+  --panel: #201f27;
+  --panel-2: #272631;
+  --line: #36343f;
+  --text: #e4e1ea;
+  --muted: #9a95a8;
+  --accent: #c8a54e;
+  --accent-dim: #8a7333;
+  --danger: #d2645c;
+  --warn: #d8a657;
+  --ok: #7fae5f;
+  --radius: 6px;
+  /* One icon size for the tool's own chrome, matching the height of a form
+   * control so icons and fields sit on the same rhythm. The tooltip is the
+   * exception below: it is a replica of the game's, not part of the chrome. */
+  --icon: 34px;
+  --icon-tooltip: 42px;
+  /* One height for anything you can click or type in. Buttons were sized by
+     padding and came out 37px, so every button next to a field or another
+     button sat slightly proud of it. */
+  --control: 34px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+header h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: .3px; }
+header .band { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+header nav { margin-left: auto; display: flex; gap: 6px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+@media (max-width: 920px) { .layout { grid-template-columns: 1fr; } }
+
+/* ---- steps ---- */
+.step {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.step > h2 {
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.step .body { padding: 16px; }
+.step[hidden] { display: none; }
+
+/* ---- fields ---- */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field > label {
+  display: block; font-size: 12px; font-weight: 600;
+  margin-bottom: 5px; color: #cfcad8;
+}
+.field .hint { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+/* A search box sitting directly above the list it filters. */
+#visual-search { margin-bottom: 6px; }
+/* A select showing more than one row is a list, not a control of fixed
+ * height, so it has to be allowed to be as tall as its rows. */
+select[size]:not([size="1"]) { height: auto; padding: 4px; }
+select[size]:not([size="1"]) option { padding: 3px 5px; }
+
+input[type=text], input[type=number], input[type=password], select, textarea {
+  width: 100%;
+  /* One height for every control: a select renders its own box model, so
+     without this it sits shorter than the input beside it in a row. */
+  height: var(--control);
+  padding: 0 9px;
+  background: #15141a;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--text);
+  font: inherit;
+  line-height: 32px;
+  vertical-align: middle;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* The arrow a select loses when its own appearance is turned off. */
+select {
+  padding-right: 28px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+                    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 15px, calc(100% - 10px) 15px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+textarea {
+  height: auto;
+  padding: 7px 9px;
+  line-height: 1.5;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--accent-dim);
+}
+textarea { resize: vertical; min-height: 58px; }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .row, .row-3 { grid-template-columns: 1fr; } }
+
+button {
+  height: var(--control);
+  padding: 0 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent-dim); }
+button.primary { background: var(--accent-dim); border-color: var(--accent); color: #17151b; font-weight: 600; }
+button.primary:hover { background: var(--accent); }
+button.ghost { background: transparent; }
+button.small { height: auto; padding: 3px 8px; font-size: 12px; }
+
+/* ---- behaviours ---- */
+.behaviour {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  background: var(--panel-2);
+}
+.behaviour > header {
+  background: transparent; border: 0; border-bottom: 1px solid var(--line);
+  padding: 9px 12px; display: flex; align-items: center; gap: 10px;
+}
+.behaviour > header strong { font-size: 13px; font-weight: 600; }
+.behaviour > header .cat {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px;
+  color: var(--accent); border: 1px solid var(--accent-dim);
+  padding: 1px 6px; border-radius: 10px;
+}
+.behaviour .params { padding: 12px; }
+.behaviour .summary { font-size: 12px; color: var(--muted); padding: 12px 9px 0px; }
+.behaviour .drop { margin-left: auto; }
+
+.picker { display: flex; gap: 10px; }
+.picker select { flex: 1; }
+/* Buttons size themselves from their padding, which is a little taller than a
+   form control; beside one they have to match it. */
+.picker button { padding: 0 16px; }
+
+/* ---- tooltip ---- */
+.sidebar { position: sticky; top: 24px; }
+
+.tooltip {
+  background: rgba(10, 9, 14, 0.94);
+  border: 1px solid #4a4256;
+  border-radius: 5px;
+  padding: 11px 13px;
+  font-size: 13px;
+  box-shadow: 0 6px 22px rgba(0,0,0,.55);
+  line-height: 1.45;
+}
+.tooltip .head { display: flex; gap: 10px; align-items: flex-start; }
+.tooltip .icon {
+  width: var(--icon-tooltip); height: var(--icon-tooltip); flex: none;
+  border: 1px solid #58506a; border-radius: 3px;
+  background: #241f2e center/cover no-repeat;
+  display: grid; place-items: center;
+  font-size: 9px; color: var(--muted); text-align: center; overflow: hidden;
+}
+.tooltip .icon img { width: 100%; height: 100%; display: block; }
+.tooltip .title { flex: 1; min-width: 0; }
+.tooltip .name { color: #ffd100; font-size: 14.5px; font-weight: 600; }
+.tooltip .line { display: flex; justify-content: space-between; gap: 14px; }
+.tooltip .line span { white-space: nowrap; }
+.tooltip .desc { color: #ffffff; margin-top: 8px; }
+.tooltip.empty-spell .desc { color: #7d7590; font-style: italic; }
+.tooltip .muted { color: #bdb7c9; }
+.tooltip .sid { color: #6f6880; font-size: 11px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+
+/* ---- messages ---- */
+.msgs { margin-top: 14px; display: grid; gap: 7px; }
+.msg {
+  font-size: 12px; padding: 7px 10px; border-radius: 4px;
+  background: var(--panel);
+  display: flex; gap: 8px; align-items: flex-start;
+}
+/* The mark says what kind of message this is. A coloured edge said the same
+   thing only to someone who already knew the code, and said nothing at all in
+   greyscale. */
+.msg .mark {
+  flex: none; width: 14px; height: 14px; margin-top: 1px;
+  fill: none; stroke: currentColor; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.msg.warn .mark { color: var(--warn); }
+.msg.note { color: var(--muted); }
+.msg.err  .mark { color: var(--danger); }
+.msg.ok   .mark { color: var(--ok); }
+
+.actions { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+.actions.pair { display: grid; grid-template-columns: 1fr 1fr; }
+.actions.pair button { width: 100%; }
+/* Last, and matching the widest of the rules above: .actions.pair ties with
+ * .actions[hidden] on specificity, so only source order keeps hidden hidden. */
+.actions[hidden], .actions.pair[hidden] { display: none; }
+
+details.sql { margin-top: 14px; }
+details.sql summary { cursor: pointer; font-size: 12px; color: var(--muted); }
+details.sql pre {
+  margin: 8px 0 0; padding: 10px; background: #111016;
+  border: 1px solid var(--line); border-radius: 4px;
+  font-size: 11px; max-height: 260px; overflow: auto; white-space: pre-wrap;
+  word-break: break-all; color: #b9b3c6;
+}
+
+/* ---- spell list ---- */
+table.spells { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.spells th {
+  text-align: left; font-size: 11px; text-transform: uppercase;
+  letter-spacing: .4px; color: var(--muted); font-weight: 600;
+  padding: 6px 8px; border-bottom: 1px solid var(--line);
+}
+table.spells td { padding: 7px 8px; border-bottom: 1px solid #2b2934; }
+table.spells tr:last-child td { border-bottom: 0; }
+table.spells .id { color: var(--muted); font-variant-numeric: tabular-nums; }
+table.spells .acts { text-align: right; white-space: nowrap; }
+.empty { color: var(--muted); font-size: 13px; padding: 10px 2px; }
+
+.icon-pick { display: flex; gap: 10px; align-items: center; }
+.icon-search { flex: 1; min-width: 0; }
+
+
+.icon-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--icon));
+  justify-content: start;
+  gap: 5px;
+  max-height: 126px;
+  overflow-y: auto;
+  padding: 7px;
+  background: #15141a;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.icon-grid button {
+  padding: 0; width: var(--icon); height: var(--icon);
+  border: 1px solid transparent; border-radius: 3px;
+  background: #241f2e; overflow: hidden; cursor: pointer;
+  display: grid; place-items: center;
+  font-size: 8px; color: var(--muted); line-height: 1.1; word-break: break-all;
+}
+.icon-grid button img { width: 100%; height: 100%; display: block; }
+.icon-grid button:hover { border-color: var(--accent-dim); }
+.icon-grid button[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.icon-grid .none { grid-column: 1 / -1; color: var(--muted); font-size: 12px; padding: 4px; }
+/* The same height as the box beside it, so the two line up. */
+.icon-pick .preview {
+  width: var(--icon); height: var(--icon); flex: none; border: 1px solid var(--line);
+  border-radius: 3px; background: #241f2e; overflow: hidden;
+}
+.icon-pick .preview img { width: 100%; height: 100%; display: block; }
+
+/* ---- client patch ---- */
+.lede { color: var(--muted); font-size: 13px; margin: 0 0 14px; max-width: 62ch; }
+#patch-report { margin-top: 14px; }
+#patch-report table.spells td.id { white-space: nowrap; padding-right: 14px; }
+#patch-report table.spells td { word-break: break-all; }
+
+/* ---- how hard it hits ---- */
+.suffixed { display: flex; align-items: center; gap: 7px; }
+.suffixed input { flex: 1; min-width: 0; }
+.suffixed span { color: var(--muted); font-size: 12px; }
+
+/* A toggle is a different kind of choice from a number, so it is set apart. */
+.toggle {
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.toggle label { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+.toggle input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); }
+.toggle label span { font-size: 13px; }
+.toggle .hint { font-size: 11.5px; color: var(--muted); margin-top: 5px; padding-left: 24px; }
+
+.tooltip .scaling { color: #7fbfff; margin-top: 4px; }
+
+/* The target block butts against the parameters below it, so it drops its own
+ * bottom padding - unless it is the last thing in the card, which it is for any
+ * behaviour that takes no parameters. */
+.behaviour .aim { padding-bottom: 0; }
+.behaviour .aim:last-child { padding-bottom: 12px; }
+.behaviour .aim .field { margin-bottom: 0; }
+
+/* ---- the dialog after a save ---- */
+.overlay {
+  position: fixed; inset: 0; background: rgba(8, 7, 11, .72);
+  display: grid; place-items: center; padding: 24px; z-index: 20;
+}
+.overlay[hidden] { display: none; }
+.dialog {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px 22px; max-width: 520px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.6);
+}
+.dialog h2 { margin: 0 0 10px; font-size: 15px; }
+.dialog p { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+.dialog ol { margin: 0; padding-left: 20px; font-size: 13px; }
+.dialog li { margin-bottom: 8px; }
+.dialog li:last-child { margin-bottom: 0; }
+.dialog code {
+  background: #15141a; border: 1px solid var(--line); border-radius: 3px;
+  padding: 1px 5px; font-size: 12px; color: var(--accent);
+}
+
+/* ---- client patch verdict ---- */
+/* A coloured left border says "something", not "what". A tick or a cross says
+   whether the client is ready, which is the only question this panel answers. */
+.verdict { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+.verdict .mark {
+  width: 26px; height: 26px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 15px; font-weight: 700; line-height: 1;
+}
+.verdict.good .mark { background: rgba(127, 174, 95, .16); color: var(--ok); border: 1px solid var(--ok); }
+.verdict.bad .mark  { background: rgba(210, 100, 92, .16); color: var(--danger); border: 1px solid var(--danger); }
+.verdict .headline { font-size: 14px; font-weight: 600; margin-top: 3px; }
+.verdict.good .headline { color: var(--ok); }
+.verdict.bad .headline { color: var(--danger); }
+.verdict ul { margin: 7px 0 0; padding-left: 18px; color: var(--muted); font-size: 12.5px; }
+.verdict li { margin-bottom: 4px; }
+
+/* ---- price ---- */
+.money { display: flex; align-items: center; gap: 6px; }
+.money input { width: 100%; min-width: 0; text-align: right; padding-right: 8px; }
+.money span { color: var(--muted); font-size: 12px; }
+
+/* The price belongs beside the choice it depends on, not underneath it. */
+.toggle.taught {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px; margin-bottom: 16px;
+}
+.toggle.taught label { flex: none; }
+.priced { display: flex; align-items: center; gap: 10px; }
+.priced > label { margin: 0; font-size: 12px; font-weight: 600; color: #cfcad8; }
+.priced .money { width: 230px; }
+/* Hidden, not removed: taking it out of the flow would move the row every time
+   the box is ticked. The browser's own rule for [hidden] is display:none, so the
+   display has to be put back as well as the visibility taken away. */
+.priced[hidden] { display: flex; visibility: hidden; }
+
+/* ---- work in progress ---- */
+/* Beside the buttons, not below them: a block that appears under the controls
+   pushes the whole panel down while you are waiting for it. */
+.working { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: var(--muted); }
+.working[hidden] { display: none; }
+.spinner {
+  width: 14px; height: 14px; flex: none; border-radius: 50%;
+  border: 2px solid var(--line); border-top-color: var(--accent);
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+button[disabled] { opacity: .5; cursor: default; }
+button[disabled]:hover { border-color: var(--line); }
+
+/* Both verdicts sit under an actions row and need the same air above them. */
+#db-result, #client-result { margin-top: 16px; }
+#db-source { margin-top: 12px; }
+
+/* ---- ranks ---- */
+.tooltip .name-line { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.tooltip .rank { color: #bdb7c9; font-size: 12px; white-space: nowrap; }
+
+.rank-row {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid #2b2934;
+}
+.rank-row .who { width: 60px; flex: none; }
+.rank-row .field { flex: 1 1 110px; min-width: 90px; }
+.rank-row .fixed { flex: 1 1 auto; }
+.rank-row:last-child { border-bottom: 0; }
+.rank-row .who { font-size: 13px; font-weight: 600; padding-bottom: 8px; }
+.rank-row .field { margin-bottom: 0; }
+.rank-row .field > label { font-size: 11px; }
+.rank-row .fixed { color: var(--muted); font-size: 12.5px; padding-bottom: 8px; }
+.rank-row .drop { flex: none; align-self: flex-end; margin-bottom: 1px; }
+
+/* ---- ability library ---- */
+table.spells td.art { width: calc(var(--icon) + 6px); padding-right: 0; }
+table.spells td.art img {
+  width: var(--icon); height: var(--icon); display: block; border-radius: 3px;
+}
+table.spells .ranks { color: var(--muted); font-size: 11.5px; margin-left: 8px; }
+table.spells .acts button + button { margin-left: 8px; }
+
+/* ---- ability library, in the rail ---- */
+/* The rail is sticky, so the list gets whatever height is left under the
+ * tooltip and scrolls inside it rather than growing the page. */
+.library { margin-top: 18px; border-top: 1px solid #2b2934; padding-top: 12px; }
+.library-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-size: 11px; font-weight: 600; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+}
+.library-head .count { font-size: 11px; letter-spacing: 0; }
+.library-list { max-height: 46vh; overflow-y: auto; padding-right: 2px; }
+
+.ability-card {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 8px; border-radius: 4px; cursor: pointer;
+  border: 1px solid transparent;
+}
+.ability-card:hover { background: #242030; border-color: #3a3448; }
+.ability-card.current { background: #2a2338; border-color: #5b4d78; }
+.ability-card .art {
+  width: var(--icon); height: var(--icon); flex: none; border-radius: 3px;
+  border: 1px solid #4a4256; background: #241f2e;
+  display: grid; place-items: center; overflow: hidden;
+  font-size: 8px; color: var(--muted); text-align: center;
+}
+.ability-card .art img { width: 100%; height: 100%; display: block; }
+.ability-card .text { flex: 1; min-width: 0; }
+.ability-card .name {
+  font-size: 13px; color: #e8e4ef;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ability-card .meta {
+  font-size: 11px; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* Delete stays out of the way until the card is under the pointer, so the list
+ * reads as names rather than as a column of buttons. */
+.ability-card .del { opacity: 0; flex: none; }
+.ability-card:hover .del, .ability-card .del:focus { opacity: 1; }
+
+/* ---- create, and the grouped list ---- */
+.new-card {
+  width: 100%; margin-bottom: 8px; padding: 9px 10px;
+  background: transparent; color: var(--muted);
+  border: 1px dashed #4a4256; border-radius: 4px;
+  font: inherit; font-size: 12.5px; cursor: pointer; text-align: center;
+}
+.new-card:hover { color: #e8e4ef; border-color: #6b5f86; background: #242030; }
+
+.group + .group { margin-top: 6px; }
+.group-head {
+  width: 100%; display: flex; align-items: center; gap: 7px;
+  padding: 5px 4px; background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: 11px; font-weight: 600; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--muted); text-align: left;
+}
+.group-head:hover { color: #cfc8dc; }
+.group-head .caret {
+  flex: none; width: 0; height: 0; margin-right: 1px;
+  border-left: 4px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transform: rotate(90deg);
+}
+.group-head[aria-expanded="false"] .caret { transform: none; }
+.group-head .label { flex: 1; min-width: 0; }
+.group-head .n { font-weight: 400; letter-spacing: 0; }
+.group-body[hidden] { display: none; }
+
+/* ---- stopping ---- */
+button.danger { color: var(--danger); border-color: rgba(210, 100, 92, .45); }
+button.danger:hover:not(:disabled) { border-color: var(--danger); background: rgba(210, 100, 92, .10); }
+/* Once the server is gone nothing on the page can do anything, so it stops
+ * pretending it can. Dimmed per panel rather than on the whole layout: opacity
+ * makes a stacking context, so a child of a faded parent cannot be solid. */
+body.stopped .step, body.stopped .sidebar, body.stopped nav {
+  opacity: .45; pointer-events: none;
+}
+body.stopped #view-settings .step:last-child { opacity: 1; pointer-events: auto; }
+
+/* An action whose whole meaning is its icon: square, and the same height as the
+ * button beside it so the row does not step. */
+button.icon-only {
+  width: var(--control); padding: 0; flex: none;
+  display: inline-grid; place-items: center;
+}
+button.icon-only svg { width: 15px; height: 15px; display: block; }
+
+/* ---- the server has gone ---- */
+/* A bar rather than a dimmed page: the fix is to start the server and try
+   again, so the page has to stay usable. It clears itself the moment any
+   request gets through. */
+.offline {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 24px; font-size: 13px;
+  color: #f4dad7; background: #4a2320;
+  border-bottom: 1px solid var(--danger);
+}
+.offline[hidden] { display: none; }
+.offline svg {
+  flex: none; width: 15px; height: 15px;
+  fill: none; stroke: currentColor; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}

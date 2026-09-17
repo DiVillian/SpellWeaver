@@ -1,0 +1,15 @@
+{
+  "band": {
+    "start": 950000,
+    "end": 999999
+  },
+  "creature_band": {
+    "start": 1950000,
+    "end": 1950999
+  },
+  "trainer_band": {
+    "start": 9500,
+    "end": 9599
+  },
+  "stock_ceiling": 100000
+}

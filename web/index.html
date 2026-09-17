@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpellWeaver</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Shown when a request cannot reach the server at all, which to the browser
+     is a bare TypeError and to the user is a page that has stopped working. -->
+<div class="offline" id="offline" hidden role="status">
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <circle cx="8" cy="8" r="6.4"/><path d="M8 4.6v4.4"/><path d="M8 11.3v.1"/>
+  </svg>
+  <span id="offline-words">SpellWeaver is not running.</span>
+</div>
+
+<header>
+  <h1>SpellWeaver</h1>
+  <span class="band" id="band"></span>
+  <nav>
+    <button id="nav-abilities" class="small">Abilities</button>
+    <button id="nav-patch" class="small ghost">Client patch</button>
+    <button id="nav-settings" class="small ghost">Settings</button>
+  </nav>
+</header>
+
+<main class="layout">
+  <div>
+    <!-- view: builder -->
+    <section id="view-build">
+      <div class="step">
+        <h2>Ability Information</h2>
+        <div class="body">
+          <div class="field">
+            <label for="name">Name</label>
+            <input type="text" id="name" maxlength="100" placeholder="Name this ability">
+          </div>
+          <div class="field">
+            <label for="icon-search">Icon</label>
+            <div class="icon-pick">
+              <span class="preview" id="icon-preview"></span>
+              <div class="icon-search">
+                <input type="text" id="icon-search" placeholder="Search 3,000+ game icons: holy, fire, shadow...">
+              </div>
+            </div>
+            <div class="icon-grid" id="icon-grid"></div>
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label for="class">Class</label>
+              <select id="class"></select>
+            </div>
+            <div class="field">
+              <label for="skill-line">Specialisation</label>
+              <select id="skill-line"></select>
+            </div>
+            <div class="field">
+              <label for="level">Required Level</label>
+              <select id="level"></select>
+            </div>
+          </div>
+          <div class="toggle taught">
+            <label for="taught">
+              <input type="checkbox" id="taught" checked>
+              <span>Purchasable from trainers</span>
+            </label>
+            <div class="priced" id="trainer-row">
+              <label for="price-g">Price</label>
+              <div class="money">
+                <input type="number" id="price-g" min="0" max="999999" step="1" value="0"><span>g</span>
+                <input type="number" id="price-s" min="0" max="99" step="1" value="0"><span>s</span>
+                <input type="number" id="price-c" min="0" max="99" step="1" value="0"><span>c</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="description">Description</label>
+            <textarea id="description" placeholder="Left blank, a description is written from the effects you pick."></textarea>
+            <div class="hint">Written automatically if left blank. $s1 is the amount, $t1 the time between ticks and $d the duration.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2>Ability Effects</h2>
+        <div class="body">
+          <div class="field">
+            <label for="behaviour-add">Add Effect</label>
+            <div class="picker">
+              <select id="behaviour-add"></select>
+              <button id="behaviour-add-btn" type="button">Add</button>
+            </div>
+            <div class="hint" id="behaviour-hint">An ability can have up to three effects.</div>
+          </div>
+          <div id="behaviours"></div>
+        </div>
+      </div>
+
+      <div class="step" id="step-cast" hidden>
+        <h2>Casting</h2>
+        <div class="body">
+          <div class="field">
+            <label for="target">Target</label>
+            <select id="target"></select>
+            <div class="hint" id="target-hint"></div>
+          </div>
+          <div class="row">
+            <div class="field" id="field-range">
+              <label for="range">Range</label>
+              <input type="number" id="range" min="0" max="100" step="1" value="30">
+              <div class="hint">How far away the target can be, in yards. 0 means melee range.</div>
+            </div>
+            <div class="field" id="field-radius" hidden>
+              <label for="radius">Area Size</label>
+              <input type="number" id="radius" min="1" max="100" step="1" value="8">
+              <div class="hint">Radius of the affected area, in yards.</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="cast">Cast Time</label>
+              <input type="number" id="cast" min="0" max="10" step="0.5" value="0">
+              <div class="hint">Time spent casting before the ability takes effect, in seconds. 0 is instant.</div>
+            </div>
+            <div class="field">
+              <label for="cooldown">Cooldown</label>
+              <input type="number" id="cooldown" min="0" max="3600" step="1" value="0">
+              <div class="hint">Time before the ability can be used again, in seconds. 0 means no cooldown.</div>
+            </div>
+          </div>
+          <div class="field" id="field-duration" hidden>
+            <label for="duration">Duration</label>
+            <input type="number" id="duration" min="1" max="3600" step="1" value="15">
+            <div class="hint">Number of seconds the effect lasts.</div>
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label for="school">School</label>
+              <select id="school"></select>
+            </div>
+            <div class="field">
+              <label for="power">Resource</label>
+              <select id="power"></select>
+            </div>
+            <div class="field">
+              <label for="cost">Cost</label>
+              <input type="number" id="cost" min="0" max="100000" step="5" value="0">
+            </div>
+          </div>
+          <div class="field">
+            <label for="visual">Animation</label>
+            <input type="text" id="visual-search" placeholder="Filter animations">
+            <select id="visual"></select>
+            <div class="hint" id="visual-hint"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" id="step-power" hidden>
+        <h2>Power Scaling</h2>
+        <div class="body">
+          <div class="row">
+            <div class="field">
+              <label for="scaling">Power Scaling</label>
+              <div class="suffixed">
+                <input type="number" id="scaling" min="0" max="500" step="1" value="0">
+                <span>%</span>
+              </div>
+              <div class="hint" id="scaling-hint"></div>
+            </div>
+            <div class="field">
+              <label for="spread">Variation</label>
+              <div class="suffixed">
+                <input type="number" id="spread" min="0" max="100" step="1" value="0">
+                <span>%</span>
+              </div>
+              <div class="hint" id="spread-hint"></div>
+            </div>
+          </div>
+          <div class="toggle">
+            <label for="ignore-mitigation">
+              <input type="checkbox" id="ignore-mitigation">
+              <span>Ignore the target's armour and damage reduction</span>
+            </label>
+            <div class="hint">The full amount is dealt, ignoring armour and
+            damage reduction.</div>
+          </div>
+        </div>
+      </div>
+      <div class="step" id="step-ranks" hidden>
+        <h2>Ranks</h2>
+        <div class="body">
+          <div id="ranks"></div>
+          <div class="actions">
+            <button id="rank-add" type="button">Add Rank</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- view: database connection -->
+    <section id="view-settings" hidden>
+      <div class="step">
+        <h2>Database Connection</h2>
+        <div class="body">
+          <p class="lede">SpellWeaver writes to your AzerothCore world database.
+          Credentials are stored for future use.</p>
+          <div class="row-3">
+            <div class="field">
+              <label for="db-host">Host</label>
+              <input type="text" id="db-host" value="127.0.0.1">
+            </div>
+            <div class="field">
+              <label for="db-port">Port</label>
+              <input type="number" id="db-port" min="1" max="65535" value="3306">
+            </div>
+            <div class="field">
+              <label for="db-user">User</label>
+              <input type="text" id="db-user" value="root">
+            </div>
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label for="db-password">Password</label>
+              <input type="password" id="db-password" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="db-world">World database</label>
+              <input type="text" id="db-world" value="acore_world">
+            </div>
+            <div class="field">
+              <label for="db-characters">Characters database</label>
+              <input type="text" id="db-characters" value="acore_characters">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="db-save">Save</button>
+            <button class="ghost" id="db-test">Test Connection</button>
+            <span class="working" id="db-working" hidden>
+              <span class="spinner" aria-hidden="true"></span>
+              <span id="db-working-text">Connecting...</span>
+            </span>
+          </div>
+          <div id="db-result"></div>
+          <div class="hint" id="db-source"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2>Game Client</h2>
+        <div class="body">
+          <p class="lede">Enter the path to your 3.5.5.a client install and click Save. The client
+          patch is built from it and written into it.</p>
+          <div class="field">
+            <label for="client-dir">Client folder</label>
+            <input type="text" id="client-dir" placeholder="C:\World of Warcraft">
+            <div class="hint">The folder containing Wow.exe and the Data directory.</div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="client-save">Save</button>
+            <span class="working" id="client-working" hidden>
+              <span class="spinner" aria-hidden="true"></span>
+              <span id="client-working-text">Checking...</span>
+            </span>
+          </div>
+          <div id="client-result"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2>Worldserver</h2>
+        <div class="body">
+          <p class="lede">New abilities are read when the worldserver starts, so
+          every change will require a worldserver restart. You can store your server
+          restart command here and execute it from the Client patch page.</p>
+          <div class="field">
+            <label for="restart-command">Restart command</label>
+            <input type="text" id="restart-command"
+                   placeholder="systemctl restart worldserver">
+            <div class="hint">Run as the user running SpellWeaver, on this
+            machine. Leave it empty to keep restarting the server yourself.</div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="restart-save">Save</button>
+          </div>
+          <div id="restart-result"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2>Shut Down</h2>
+        <div class="body">
+          <p class="lede">SpellWeaver runs until it is stopped. Nothing you have
+          saved is lost: abilities live in the database and the client patch
+          stays in your client.</p>
+          <div class="actions">
+            <button class="ghost danger" id="shutdown">Shut Down SpellWeaver</button>
+          </div>
+          <div id="shutdown-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- view: client patch -->
+    <section id="view-patch" hidden>
+      <div class="step">
+        <h2>Client Patch</h2>
+        <div class="body">
+          <p class="lede">Everything a player sees comes from their own copy of
+          the game. Abilities will not work correctly until the client has this
+          patch.</p>
+          <div class="actions">
+            <button class="primary" id="patch-build">Apply Patch</button>
+            <button class="ghost" id="patch-restart">Restart Server</button>
+            <button class="ghost icon-only" id="patch-refresh" type="button"
+                    title="Check the client again" aria-label="Check the client again">
+              <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                <path d="M13.3 8a5.3 5.3 0 1 1-1.6-3.8" fill="none"
+                      stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M12.2 1.6v3h-3" fill="none" stroke="currentColor"
+                      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <span class="working" id="patch-working" hidden>
+              <span class="spinner" aria-hidden="true"></span>
+              <span id="patch-working-text">Build in progress...</span>
+            </span>
+          </div>
+          <div class="msgs" id="patch-msgs"></div>
+          <div id="patch-report"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="tooltip" id="tooltip">
+      <div class="head">
+        <span class="icon" id="tt-icon"></span>
+        <div class="title">
+          <div class="name-line">
+            <span class="name" id="tt-name">New Ability</span>
+            <span class="rank" id="tt-rank"></span>
+          </div>
+          <div class="line muted"><span id="tt-cost"></span><span id="tt-range"></span></div>
+          <div class="line muted"><span id="tt-cast"></span><span id="tt-cd"></span></div>
+        </div>
+      </div>
+      <div class="desc" id="tt-desc"></div>
+      <div class="scaling" id="tt-scaling"></div>
+      <div class="req" id="tt-level"></div>
+      <div class="sid" id="tt-sid"></div>
+    </div>
+
+
+    <div class="actions pair" id="edit-actions" hidden>
+      <button class="primary" id="save">Save Ability</button>
+      <button class="ghost" id="revert">Discard</button>
+    </div>
+
+    <div class="msgs" id="msgs"></div>
+
+    <details class="sql">
+      <summary>SQL output:</summary>
+      <pre id="sql"></pre>
+    </details>
+
+    <div class="library">
+      <div class="library-head">
+        <span>Created Abilities</span>
+        <span class="count" id="library-count"></span>
+      </div>
+      <button type="button" class="new-card" id="new-ability">Create New Ability</button>
+      <div class="library-list" id="library-list"></div>
+    </div>
+  </aside>
+</main>
+
+<!-- shown once an ability is saved, because what to do next is not obvious -->
+<div class="overlay" id="saved-overlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="saved-title">
+    <h2 id="saved-title">Ability saved</h2>
+    <p id="saved-what"></p>
+    <ol id="saved-steps"></ol>
+    <div class="actions">
+      <button class="primary" id="saved-close">Got it</button>
+      <button class="ghost" id="saved-patch">Apply the client patch</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

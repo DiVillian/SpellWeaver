@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Blizzard's own data files. Not ours to distribute: they are taken out of
+# whatever client you point the tool at.
+#   python3 tools/extract_dbc.py --client /path/to/WoW
+data/dbc/
+data/icons/
+data/vocabulary.json
+
+# This machine: where your client lives, and what was last built for it.
+data/local.json
+data/client_patch.json
+
+# Database credentials.
+data/connection.json
+
+# Output and scratch.
+out/
+.run/server.log
+.run/server.pid
+.run/shots/

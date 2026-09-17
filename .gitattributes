@@ -1,0 +1,13 @@
+# Line endings are decided here rather than by whatever each machine's git is
+# configured to do, so the repo reads the same on Windows, Linux and macOS and
+# nobody sees a diff that is only invisible characters.
+* text=auto eol=lf
+
+# Except batch files, which cmd.exe expects to find in CRLF.
+*.bat text eol=crlf
+
+# Never rewritten, whatever the setting.
+*.png binary
+*.mpq binary
+*.dbc binary
+*.blp binary
